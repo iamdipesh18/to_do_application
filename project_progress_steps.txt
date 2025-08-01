@@ -1,0 +1,122 @@
+🔹 STEP 1: Project Setup & Dependencies
+✅ Create Flutter project
+
+✅ Add dependencies to pubspec.yaml
+
+✅ Set up initial folder structure
+
+✅ Run flutter pub get
+-------------------------------------------------------------------------
+🔹 STEP 2: Hive Initialization
+Setup Hive in main.dart
+
+Initialize Hive box for Task
+
+Register Hive adapters
+-------------------------------------------------------------------------
+🔹 STEP 3: TaskPriority Enum
+Create TaskPriority enum inside core/enums/priority.dart
+
+Add High, Medium, Low levels
+-------------------------------------------------------------------------
+🔹 STEP 4: Task Model for Hive (Data Layer)
+Create task_model.dart in data/models/
+
+Annotate with @HiveType, @HiveField
+
+Generate Hive TypeAdapter using build_runner
+-------------------------------------------------------------------------
+🔹 STEP 5: Domain Entity (Clean Model)
+Create clean Task entity in domain/entities/
+
+This model has no Hive or Flutter dependencies
+-------------------------------------------------------------------------
+🔹 STEP 6: Repository Layer
+🔸 domain/repositories/task_repository.dart → abstract interface
+
+🔸 data/repositories/task_repository_impl.dart → actual implementation
+-------------------------------------------------------------------------
+🔹 STEP 7: Local Data Source (Hive CRUD Operations)
+Create local_task_data_source.dart
+
+Write methods: add, delete, update, getAll
+-------------------------------------------------------------------------
+🔹 STEP 8: Use Cases (Domain Logic)
+Create one Dart file per task inside domain/usecases/:
+
+add_task.dart
+
+get_tasks.dart
+
+delete_task.dart
+
+update_task.dart
+
+toggle_task_status.dart
+-------------------------------------------------------------------------
+🔹 STEP 9: BLoC for Task Management
+Create task_bloc/ folder
+
+task_bloc.dart: main logic
+
+task_event.dart: defines all possible user actions
+
+task_state.dart: represents UI state (task list, loading, etc.)
+
+🔹 STEP 10: BLoC for Filtering Tasks
+Create filter_bloc/
+
+Handles All / Active / Completed filters
+
+Works in parallel with task_bloc
+
+🔹 STEP 11: Build UI
+Create presentation/screens/home_screen.dart
+
+Show list of tasks
+
+Show add/edit buttons
+
+Hook BLoC into UI using BlocBuilder and BlocListener
+
+🔹 STEP 12: Reusable UI Components
+🔸 task_tile.dart: each task row with checkbox, title, priority
+
+🔸 task_form.dart: used for adding/editing task (title, description, due date)
+
+🔸 filter_buttons.dart: toggle between All, Active, Completed
+
+🔹 STEP 13: Dialog UI for Add/Edit Task
+Create task_dialog.dart that:
+
+Opens when FAB is tapped
+
+Can be used to edit an existing task or add a new one
+
+🔹 STEP 14: Sorting by Due Date
+Implement optional sorting feature (ascending or descending due date)
+
+Use basic List.sort() on task list
+
+🔹 STEP 15: (Optional) Dark/Light Theme
+Add toggle using ThemeData.light() and ThemeData.dark()
+
+🔹 STEP 16: README + GitHub
+Create a README.md with:
+
+Project overview
+
+How to run the app
+
+Architecture summary
+
+Screenshots (optional)
+
+Push to GitHub (public repo)
+
+🔹 STEP 17: Final Polish
+Test functionality
+
+Ensure UI is responsive and clean
+
+Optional: Add animations or transitions
