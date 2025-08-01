@@ -15,9 +15,9 @@
 ✅ Register Hive adapters
 -------------------------------------------------------------------------
 🔹 STEP 3: TaskPriority Enum
-Create TaskPriority enum inside core/enums/priority.dart
+✅ Create TaskPriority enum inside core/enums/priority.dart
 
-Add High, Medium, Low levels
+✅ Add High, Medium, Low levels
 -------------------------------------------------------------------------
 🔹 STEP 4: Task Model for Hive (Data Layer)
 Create task_model.dart in data/models/
