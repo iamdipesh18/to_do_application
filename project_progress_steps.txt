@@ -27,9 +27,9 @@
 ✅ Generate Hive TypeAdapter using build_runner
 -------------------------------------------------------------------------
 🔹 STEP 5: Domain Entity (Clean Model)
-Create clean Task entity in domain/entities/
+✅ Create clean Task entity in domain/entities/
 
-This model has no Hive or Flutter dependencies
+✅ This model has no Hive or Flutter dependencies
 -------------------------------------------------------------------------
 🔹 STEP 6: Repository Layer
 🔸 domain/repositories/task_repository.dart → abstract interface
