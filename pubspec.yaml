@@ -32,6 +32,7 @@ dependencies:
   # UTILITIES
   # ------------------------------
   uuid: ^4.1.0                   # For generating unique task IDs
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
