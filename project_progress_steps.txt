@@ -8,11 +8,11 @@
 ✅ Run flutter pub get
 -------------------------------------------------------------------------
 🔹 STEP 2: Hive Initialization
-Setup Hive in main.dart
+✅ Setup Hive in main.dart
 
-Initialize Hive box for Task
+✅ Initialize Hive box for Task
 
-Register Hive adapters
+✅ Register Hive adapters
 -------------------------------------------------------------------------
 🔹 STEP 3: TaskPriority Enum
 Create TaskPriority enum inside core/enums/priority.dart
