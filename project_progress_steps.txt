@@ -20,11 +20,11 @@
 ✅ Add High, Medium, Low levels
 -------------------------------------------------------------------------
 🔹 STEP 4: Task Model for Hive (Data Layer)
-Create task_model.dart in data/models/
+✅ Create task_model.dart in data/models/
 
-Annotate with @HiveType, @HiveField
+✅ Annotate with @HiveType, @HiveField
 
-Generate Hive TypeAdapter using build_runner
+✅ Generate Hive TypeAdapter using build_runner
 -------------------------------------------------------------------------
 🔹 STEP 5: Domain Entity (Clean Model)
 Create clean Task entity in domain/entities/
