@@ -32,9 +32,9 @@
 ✅ This model has no Hive or Flutter dependencies
 -------------------------------------------------------------------------
 🔹 STEP 6: Repository Layer
-* domain/repositories/task_repository.dart → abstract interface
+✅ domain/repositories/task_repository.dart → abstract interface
 
-🔸 data/repositories/task_repository_impl.dart → actual implementation
+✅ data/repositories/task_repository_impl.dart → actual implementation
 -------------------------------------------------------------------------
 🔹 STEP 7: Local Data Source (Hive CRUD Operations)
 Create local_task_data_source.dart
