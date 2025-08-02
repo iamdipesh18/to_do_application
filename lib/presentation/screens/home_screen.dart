@@ -159,8 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case TaskFilter.pending:
         return tasks.where((t) => !t.isCompleted).toList();
       case TaskFilter.all:
-      default:
-        return tasks;
+      return tasks;
     }
   }
 }

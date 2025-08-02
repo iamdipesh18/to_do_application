@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:to_do_application/core/constants/colors.dart';
 import 'package:to_do_application/core/enums/priority.dart';
-import 'package:to_do_application/core/utils/date_formatter.dart';
 
 class Task {
   final String id;
