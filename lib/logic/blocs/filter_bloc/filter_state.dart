@@ -1,17 +1,17 @@
+import 'package:equatable/equatable.dart';
 import 'filter_event.dart';
 
-class FilterState {
-  final TaskFilter currentFilter;
+class FilterState extends Equatable {
+  final TaskFilter activeFilter;
 
-  FilterState({required this.currentFilter});
+  const FilterState({this.activeFilter = TaskFilter.all});
 
-  factory FilterState.initial() {
-    return FilterState(currentFilter: TaskFilter.all);
-  }
-
-  FilterState copyWith({TaskFilter? currentFilter}) {
+  FilterState copyWith({TaskFilter? activeFilter}) {
     return FilterState(
-      currentFilter: currentFilter ?? this.currentFilter,
+      activeFilter: activeFilter ?? this.activeFilter,
     );
   }
+
+  @override
+  List<Object?> get props => [activeFilter];
 }

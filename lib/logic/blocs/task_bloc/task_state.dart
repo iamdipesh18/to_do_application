@@ -1,37 +1,31 @@
 import 'package:equatable/equatable.dart';
 import 'package:to_do_application/domain/entities/task.dart';
 
-class TaskState extends Equatable {
-  final List<Task> tasks;
-  final bool isLoading;
-  final String? error;
-  final bool isAscending;
-
-  const TaskState(
-    this.isAscending, {
-    required this.tasks,
-    this.isLoading = false,
-    this.error,
-  });
-
-  // Initial/default state (empty task list)
-  factory TaskState.initial() {
-    return const TaskState(tasks: [], isLoading: false);
-  }
-
-  // Creates a copy with optional new values
-  TaskState copyWith({
-    List<Task>? tasks,
-    bool? isLoading,
-    String? error,
-  }) {
-    return TaskState(
-      tasks: tasks ?? this.tasks,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-    );
-  }
+abstract class TaskState extends Equatable {
+  const TaskState();
 
   @override
-  List<Object> get props => [tasks, isLoading, isAscending];
+  List<Object?> get props => [];
+}
+
+class TaskInitial extends TaskState {}
+
+class TaskLoading extends TaskState {}
+
+class TaskLoaded extends TaskState {
+  final List<Task> tasks;
+
+  const TaskLoaded(this.tasks);
+
+  @override
+  List<Object?> get props => [tasks];
+}
+
+class TaskError extends TaskState {
+  final String message;
+
+  const TaskError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }

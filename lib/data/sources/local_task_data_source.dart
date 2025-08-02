@@ -1,40 +1,26 @@
 import 'package:hive/hive.dart';
-import 'package:to_do_application/data/models/task_model.dart';
+import '../models/task_model.dart';
 
 class LocalTaskDataSource {
-  static const String taskBoxName = 'tasks_box';
+  static const String _boxName = 'tasks';
 
-  late Box<TaskModel> _taskBox;
-
-  /// Initialize Hive box
-  Future<void> init() async {
-    // Open the Hive box where all tasks will be stored
-    _taskBox = await Hive.openBox<TaskModel>(taskBoxName);
+  Future<List<TaskModel>> getTasks() async {
+    final box = Hive.box<TaskModel>(_boxName);
+    return box.values.toList();
   }
 
-  /// Get all tasks from the box
-  List<TaskModel> getAllTasks() {
-    // Return all values as a list
-    return _taskBox.values.toList();
-  }
-
-  /// Add a new task to the box
   Future<void> addTask(TaskModel task) async {
-    await _taskBox.add(task);
+    final box = Hive.box<TaskModel>(_boxName);
+    await box.put(task.id, task);
   }
 
-  /// Update an existing task
-  Future<void> updateTask(int index, TaskModel updatedTask) async {
-    await _taskBox.putAt(index, updatedTask);
+  Future<void> updateTask(TaskModel task) async {
+    final box = Hive.box<TaskModel>(_boxName);
+    await box.put(task.id, task);
   }
 
-  /// Delete a task from the box
-  Future<void> deleteTask(int index) async {
-    await _taskBox.deleteAt(index);
-  }
-
-  /// Clear all tasks
-  Future<void> clearAllTasks() async {
-    await _taskBox.clear();
+  Future<void> deleteTask(String taskId) async {
+    final box = Hive.box<TaskModel>(_boxName);
+    await box.delete(taskId);
   }
 }

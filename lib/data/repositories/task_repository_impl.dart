@@ -1,39 +1,52 @@
 import 'package:to_do_application/data/models/task_model.dart';
 import 'package:to_do_application/data/sources/local_task_data_source.dart';
+import 'package:to_do_application/domain/entities/task.dart';
 import 'package:to_do_application/domain/repositories/task_repository.dart';
 
 class TaskRepositoryImpl implements TaskRepository {
-  final LocalTaskDataSource _localDataSource;
+  final LocalTaskDataSource dataSource;
 
-  TaskRepositoryImpl(this._localDataSource);
+  TaskRepositoryImpl({required this.dataSource});
 
   @override
-  Future<void> init() async {
-    await _localDataSource.init();
+  Future<List<Task>> getTasks() async {
+    return dataSource.getTasks();
   }
 
   @override
-  List<TaskModel> getAllTasks() {
-    return _localDataSource.getAllTasks();
+  Future<void> addTask(Task task) async {
+    final taskModel = _toTaskModel(task);
+    await dataSource.addTask(taskModel);
   }
 
   @override
-  Future<void> addTask(TaskModel task) async {
-    await _localDataSource.addTask(task);
+  Future<void> updateTask(Task task) async {
+    final taskModel = _toTaskModel(task);
+    await dataSource.updateTask(taskModel);
   }
 
   @override
-  Future<void> updateTask(int index, TaskModel task) async {
-    await _localDataSource.updateTask(index, task);
+  Future<void> deleteTask(String taskId) async {
+    await dataSource.deleteTask(taskId);
   }
 
   @override
-  Future<void> deleteTask(int index) async {
-    await _localDataSource.deleteTask(index);
+  Future<void> toggleTaskStatus(String taskId) async {
+    final tasks = await dataSource.getTasks();
+    final task = tasks.firstWhere((t) => t.id == taskId);
+    final updatedTask = task.copyWith(isCompleted: !task.isCompleted);
+    await dataSource.updateTask(updatedTask);
   }
 
-  @override
-  Future<void> clearAllTasks() async {
-    await _localDataSource.clearAllTasks();
+  TaskModel _toTaskModel(Task task) {
+    if (task is TaskModel) return task;
+    return TaskModel(
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      dueDate: task.dueDate,
+      priority: task.priority,
+      isCompleted: task.isCompleted,
+    );
   }
 }

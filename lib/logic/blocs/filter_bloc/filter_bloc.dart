@@ -3,9 +3,11 @@ import 'filter_event.dart';
 import 'filter_state.dart';
 
 class FilterBloc extends Bloc<FilterEvent, FilterState> {
-  FilterBloc() : super(FilterState.initial()) {
-    on<FilterEvent>((event, emit) {
-      emit(state.copyWith(currentFilter: event.filter));
-    });
+  FilterBloc() : super(const FilterState()) {
+    on<ChangeFilter>(_onChangeFilter);
+  }
+
+  void _onChangeFilter(ChangeFilter event, Emitter<FilterState> emit) {
+    emit(state.copyWith(activeFilter: event.filter));
   }
 }

@@ -1,67 +1,66 @@
-import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
-import 'package:uuid/uuid.dart';
+import 'package:to_do_application/core/enums/priority.dart';
+import 'package:to_do_application/domain/entities/task.dart';
 
-import '../../../core/enums/priority.dart';
+part 'task_model.g.dart';
 
-part 'task_model.g.dart'; // Generated file for Hive adapter
-
-/// Hive box type ID (must be unique)
 @HiveType(typeId: 0)
-class TaskModel extends HiveObject with EquatableMixin {
-  /// Unique ID for the task
+class TaskModel extends Task with HiveObjectMixin {
   @HiveField(0)
+  @override
   final String id;
 
-  /// Title of the task
   @HiveField(1)
+  @override
   final String title;
 
-  /// Detailed description
   @HiveField(2)
+  @override
   final String description;
 
-  /// Date and time of the task
   @HiveField(3)
-  final DateTime date;
+  @override
+  final DateTime dueDate;
 
-  /// Priority of the task
   @HiveField(4)
-  final TaskPriority priority;
+  @override
+  final Priority priority;
 
-  /// Completion status of the task
   @HiveField(5)
+  @override
   final bool isCompleted;
 
   TaskModel({
-    String? id,
+    required this.id,
     required this.title,
     required this.description,
-    required this.date,
+    required this.dueDate,
     required this.priority,
-    this.isCompleted = false,
-  }) : id = id ?? const Uuid().v4(); // Generate UUID if not provided
+    required this.isCompleted,
+  }) : super(
+          id: id,
+          title: title,
+          description: description,
+          dueDate: dueDate,
+          priority: priority,
+          isCompleted: isCompleted,
+        );
 
-  /// Create a copy of the task with updated fields
   TaskModel copyWith({
     String? id,
     String? title,
     String? description,
-    DateTime? date,
-    TaskPriority? priority,
+    DateTime? dueDate,
+    Priority? priority,
     bool? isCompleted,
   }) {
     return TaskModel(
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
-      date: date ?? this.date,
+      dueDate: dueDate ?? this.dueDate,
       priority: priority ?? this.priority,
       isCompleted: isCompleted ?? this.isCompleted,
     );
   }
-
-  /// Used to compare two tasks (for BLoC equality)
-  @override
-  List<Object?> get props => [id, title, description, date, priority, isCompleted];
 }

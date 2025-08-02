@@ -1,24 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:to_do_application/core/enums/priority.dart';
 import 'package:to_do_application/domain/entities/task.dart';
+import 'package:uuid/uuid.dart';
 
-/// Form widget to add or edit a Task.
-/// Handles title, optional description, priority, and due date.
 class TaskForm extends StatefulWidget {
-  final Task? initialTask; // Prefill fields when editing
-  final void Function({
-    required String title,
-    String? description,
-    required TaskPriority priority,
-    required DateTime dueDate,
-  }) onSubmit;
+  final Task? existingTask;
+  final void Function(Task) onSubmit;
 
-  const TaskForm({
-    super.key,
-    this.initialTask,
-    required this.onSubmit,
-  });
+  const TaskForm({super.key, this.existingTask, required this.onSubmit});
 
   @override
   State<TaskForm> createState() => _TaskFormState();
@@ -27,129 +16,117 @@ class TaskForm extends StatefulWidget {
 class _TaskFormState extends State<TaskForm> {
   final _formKey = GlobalKey<FormState>();
 
-  late TextEditingController _titleController;
-  late TextEditingController _descriptionController;
-  late TaskPriority _selectedPriority;
-  late DateTime _selectedDueDate;
+  late String _title;
+  late String _description;
+  late DateTime _dueDate;
+  late Priority _priority;
 
   @override
   void initState() {
     super.initState();
-
-    // Initialize controllers and selected values with editing data or defaults
-    _titleController =
-        TextEditingController(text: widget.initialTask?.title ?? '');
-    _descriptionController =
-        TextEditingController(text: widget.initialTask?.description ?? '');
-    _selectedPriority = widget.initialTask?.priority ?? TaskPriority.medium;
-    _selectedDueDate = widget.initialTask?.dueDate ?? DateTime.now();
+    final task = widget.existingTask;
+    _title = task?.title ?? '';
+    _description = task?.description ?? '';
+    _dueDate = task?.dueDate ?? DateTime.now().add(const Duration(days: 1));
+    _priority = task?.priority ?? Priority.medium;
   }
 
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
-  }
-
-  /// Opens date picker and updates _selectedDueDate if a date is picked.
-  Future<void> _pickDueDate() async {
+  Future<void> _selectDueDate() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDueDate,
+      initialDate: _dueDate,
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     );
-
     if (picked != null) {
       setState(() {
-        _selectedDueDate = picked;
+        _dueDate = picked;
       });
     }
   }
 
-  /// Validates and submits the form, calling the parent callback with data.
-  void _handleSubmit() {
-    if (_formKey.currentState!.validate()) {
-      widget.onSubmit(
-        title: _titleController.text.trim(),
-        description: _descriptionController.text.trim().isEmpty
-            ? null
-            : _descriptionController.text.trim(),
-        priority: _selectedPriority,
-        dueDate: _selectedDueDate,
+  void _submit() {
+    if (_formKey.currentState?.validate() ?? false) {
+      _formKey.currentState!.save();
+
+      final task = Task(
+        id: widget.existingTask?.id ?? const Uuid().v4(),
+        title: _title,
+        description: _description,
+        dueDate: _dueDate,
+        priority: _priority,
+        isCompleted: widget.existingTask?.isCompleted ?? false,
       );
+
+      widget.onSubmit(task);
+      Navigator.of(context).pop();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min, // Fits content height
-        children: [
-          // Title input (required)
-          TextFormField(
-            controller: _titleController,
-            decoration: const InputDecoration(labelText: 'Title'),
-            validator: (value) => value == null || value.trim().isEmpty
-                ? 'Title is required'
-                : null,
-          ),
-          const SizedBox(height: 10),
-
-          // Optional description input
-          TextFormField(
-            controller: _descriptionController,
-            decoration: const InputDecoration(labelText: 'Description'),
-            maxLines: 2,
-          ),
-          const SizedBox(height: 10),
-
-          // Priority dropdown
-          DropdownButtonFormField<TaskPriority>(
-            value: _selectedPriority,
-            decoration: const InputDecoration(labelText: 'Priority'),
-            items: TaskPriority.values.map((priority) {
-              return DropdownMenuItem(
-                value: priority,
-                child: Text(priority.name.toUpperCase()),
-              );
-            }).toList(),
-            onChanged: (value) {
-              if (value != null) {
-                setState(() {
-                  _selectedPriority = value;
-                });
-              }
-            },
-          ),
-          const SizedBox(height: 10),
-
-          // Due date picker
-          InkWell(
-            onTap: _pickDueDate,
-            child: InputDecorator(
-              decoration: const InputDecoration(labelText: 'Due Date'),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                initialValue: _title,
+                decoration: const InputDecoration(labelText: 'Title'),
+                validator: (value) => (value == null || value.trim().isEmpty) ? 'Please enter a title' : null,
+                onSaved: (value) => _title = value!.trim(),
+              ),
+              TextFormField(
+                initialValue: _description,
+                decoration: const InputDecoration(labelText: 'Description'),
+                maxLines: 3,
+                onSaved: (value) => _description = value ?? '',
+              ),
+              const SizedBox(height: 12),
+              Row(
                 children: [
-                  Text(DateFormat.yMMMd().format(_selectedDueDate)),
-                  const Icon(Icons.calendar_today),
+                  Expanded(
+                    child: Text('Due Date: ${_dueDate.toLocal().toString().split(' ')[0]}'),
+                  ),
+                  TextButton(
+                    onPressed: _selectDueDate,
+                    child: const Text('Select Date'),
+                  ),
                 ],
               ),
-            ),
+              DropdownButtonFormField<Priority>(
+                value: _priority,
+                decoration: const InputDecoration(labelText: 'Priority'),
+                items: Priority.values.map((priority) {
+                  return DropdownMenuItem(
+                    value: priority,
+                    child: Text(priority.label),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _priority = value;
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _submit,
+                child: Text(widget.existingTask == null ? 'Add Task' : 'Update Task'),
+              ),
+            ],
           ),
-          const SizedBox(height: 20),
-
-          // Submit button changes label based on add/edit mode
-          ElevatedButton(
-            onPressed: _handleSubmit,
-            child:
-                Text(widget.initialTask == null ? 'Add Task' : 'Update Task'),
-          ),
-        ],
+        ),
       ),
     );
   }

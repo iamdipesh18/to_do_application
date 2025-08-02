@@ -1,9 +1,7 @@
-// This file defines all possible events (actions) related to task operations.
-
 import 'package:equatable/equatable.dart';
-import 'package:to_do_application/data/models/task_model.dart';
+import 'package:to_do_application/domain/entities/task.dart';
 
-/// All task events will extend this base class.
+
 abstract class TaskEvent extends Equatable {
   const TaskEvent();
 
@@ -11,44 +9,40 @@ abstract class TaskEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Event to load all tasks from local storage
 class LoadTasks extends TaskEvent {}
 
-/// Event to add a new task
-class AddTask extends TaskEvent {
-  final TaskModel task;
+class AddTaskEvent extends TaskEvent {
+  final Task task;
 
-  const AddTask(this.task);
+  const AddTaskEvent(this.task);
 
   @override
   List<Object?> get props => [task];
 }
 
-/// Event to update an existing task by index
-class UpdateTask extends TaskEvent {
-  final int index;
-  final TaskModel updatedTask;
+class UpdateTaskEvent extends TaskEvent {
+  final Task task;
 
-  const UpdateTask({required this.index, required this.updatedTask});
+  const UpdateTaskEvent(this.task);
 
   @override
-  List<Object?> get props => [index, updatedTask];
+  List<Object?> get props => [task];
 }
 
-/// Event to delete a task by index
-class DeleteTask extends TaskEvent {
-  final int index;
+class DeleteTaskEvent extends TaskEvent {
+  final String taskId;
 
-  const DeleteTask(this.index);
+  const DeleteTaskEvent(this.taskId);
 
   @override
-  List<Object?> get props => [index];
+  List<Object?> get props => [taskId];
 }
 
-/// Event to clear all tasks
-class ClearAllTasks extends TaskEvent {}
+class ToggleTaskStatusEvent extends TaskEvent {
+  final String taskId;
 
+  const ToggleTaskStatusEvent(this.taskId);
 
-
-class ToggleSortOrderEvent extends TaskEvent {}
-
+  @override
+  List<Object?> get props => [taskId];
+}

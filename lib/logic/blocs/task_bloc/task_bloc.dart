@@ -1,70 +1,105 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:to_do_application/domain/entities/task.dart';
 import 'package:to_do_application/domain/usecases/add_task.dart';
 import 'package:to_do_application/domain/usecases/delete_task.dart';
 import 'package:to_do_application/domain/usecases/get_tasks.dart';
-import 'package:to_do_application/domain/usecases/update_task.dart';
 import 'package:to_do_application/domain/usecases/toggle_task_status.dart';
+import 'package:to_do_application/domain/usecases/update_task.dart';
 import 'task_event.dart';
 import 'task_state.dart';
 
+
 class TaskBloc extends Bloc<TaskEvent, TaskState> {
-  final GetTasks getTasks;
-  final AddTask addTask;
-  final DeleteTask deleteTask;
-  final UpdateTask updateTask;
-  final ToggleTaskStatus toggleTaskStatus;
+  final GetTasks _getTasks;
+  final AddTask _addTask;
+  final UpdateTask _updateTask;
+  final DeleteTask _deleteTask;
+  final ToggleTaskStatus _toggleTaskStatus;
 
   TaskBloc({
-    required this.getTasks,
-    required this.addTask,
-    required this.deleteTask,
-    required this.updateTask,
-    required this.toggleTaskStatus,
-  }) : super(TaskState.initial()) {
-    on<LoadTasks>((event, emit) {
-      emit(state.copyWith(tasks: getTasks()));
-    });
+    required GetTasks getTasks,
+    required AddTask addTask,
+    required UpdateTask updateTask,
+    required DeleteTask deleteTask,
+    required ToggleTaskStatus toggleTaskStatus,
+  })  : _getTasks = getTasks,
+        _addTask = addTask,
+        _updateTask = updateTask,
+        _deleteTask = deleteTask,
+        _toggleTaskStatus = toggleTaskStatus,
+        super(TaskInitial()) {
+    on<LoadTasks>(_onLoadTasks);
+    on<AddTaskEvent>(_onAddTask);
+    on<UpdateTaskEvent>(_onUpdateTask);
+    on<DeleteTaskEvent>(_onDeleteTask);
+    on<ToggleTaskStatusEvent>(_onToggleTaskStatus);
+  }
 
-    on<AddTaskEvent>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
-      await addTask(event.task);
-      emit(state.copyWith(
-        tasks: getTasks(),
-        isLoading: false,
-      ));
-    });
+  Future<void> _onLoadTasks(LoadTasks event, Emitter<TaskState> emit) async {
+    emit(TaskLoading());
+    try {
+      final tasks = await _getTasks.call();
+      emit(TaskLoaded(tasks));
+    } catch (e) {
+      emit(TaskError(e.toString()));
+    }
+  }
 
-    on<UpdateTaskEvent>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
-      await updateTask(event.index, event.updatedTask);
-      emit(state.copyWith(
-        tasks: getTasks(),
-        isLoading: false,
-      ));
-    });
+  Future<void> _onAddTask(AddTaskEvent event, Emitter<TaskState> emit) async {
+    if (state is TaskLoaded) {
+      final currentState = state as TaskLoaded;
+      try {
+        await _addTask.call(event.task);
+        final updatedTasks = List.of(currentState.tasks)..add(event.task);
+        emit(TaskLoaded(updatedTasks));
+      } catch (e) {
+        emit(TaskError(e.toString()));
+      }
+    }
+  }
 
-    on<DeleteTaskEvent>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
-      await deleteTask(event.index);
-      emit(state.copyWith(
-        tasks: getTasks(),
-        isLoading: false,
-      ));
-    });
+  Future<void> _onUpdateTask(UpdateTaskEvent event, Emitter<TaskState> emit) async {
+    if (state is TaskLoaded) {
+      final currentState = state as TaskLoaded;
+      try {
+        await _updateTask.call(event.task);
+        final updatedTasks = currentState.tasks.map((task) {
+          return task.id == event.task.id ? event.task : task;
+        }).toList();
+        emit(TaskLoaded(updatedTasks));
+      } catch (e) {
+        emit(TaskError(e.toString()));
+      }
+    }
+  }
 
-    on<ToggleSortOrderEvent>((event, emit) {
-      final toggled = !state.isAscending;
-      final sortedTasks = [...state.tasks];
+  Future<void> _onDeleteTask(DeleteTaskEvent event, Emitter<TaskState> emit) async {
+    if (state is TaskLoaded) {
+      final currentState = state as TaskLoaded;
+      try {
+        await _deleteTask.call(event.taskId);
+        final updatedTasks = currentState.tasks.where((task) => task.id != event.taskId).toList();
+        emit(TaskLoaded(updatedTasks));
+      } catch (e) {
+        emit(TaskError(e.toString()));
+      }
+    }
+  }
 
-      sortedTasks.sort((a, b) => toggled
-          ? a.dueDate.compareTo(b.dueDate)
-          : b.dueDate.compareTo(a.dueDate));
-
-      emit(state.copyWith(
-        tasks: sortedTasks,
-        isAscending: toggled,
-      ));
-    });
+  Future<void> _onToggleTaskStatus(ToggleTaskStatusEvent event, Emitter<TaskState> emit) async {
+    if (state is TaskLoaded) {
+      final currentState = state as TaskLoaded;
+      try {
+        await _toggleTaskStatus.call(event.taskId);
+        final updatedTasks = currentState.tasks.map((task) {
+          if (task.id == event.taskId) {
+            return task.copyWith(isCompleted: !task.isCompleted);
+          }
+          return task;
+        }).toList();
+        emit(TaskLoaded(updatedTasks));
+      } catch (e) {
+        emit(TaskError(e.toString()));
+      }
+    }
   }
 }

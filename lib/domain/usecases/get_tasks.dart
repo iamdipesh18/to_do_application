@@ -1,12 +1,12 @@
 import '../entities/task.dart';
 import '../repositories/task_repository.dart';
 
-class AddTask {
+class GetTasks {
   final TaskRepository repository;
 
-  AddTask(this.repository);
+  GetTasks(this.repository);
 
-  Future<void> call(Task task) async {
-    await repository.addTask(task);
+  Future<List<Task>> call() async {
+    return await repository.getTasks();
   }
 }
