@@ -29,52 +29,99 @@ A simple yet powerful Todo Application built using **Flutter**, implementing **C
 ## 🧱 Project Structure
 
 lib/
+
 ├── main.dart
+
 ├── app.dart
+
 ├── core/
+
 │   ├── constants/
+
 │   │   └── colors.dart
+
 │   ├── enums/
+
 │   │   └── priority.dart
+
 │   └── utils/
+
 │       └── date_formatter.dart
+
 ├── data/
+
 │   ├── models/
+
 │   │   └── task_model.dart
+
 │   ├── sources/
+
 │   │   └── local_task_data_source.dart
+
 │   └── repositories/
+
 │       └── task_repository_impl.dart
+
 ├── domain/
+
 │   ├── entities/
+
 │   │   └── task.dart
+
 │   ├── repositories/
+
 │   │   └── task_repository.dart
+
 │   └── usecases/
+
 │       ├── add_task.dart
+
 │       ├── delete_task.dart
+
 │       ├── get_tasks.dart
+
 │       ├── update_task.dart
+
 │       └── toggle_task_status.dart
+
 ├── logic/
+
 │   └── blocs/
+
 │       ├── task_bloc/
+
 │       │   ├── task_bloc.dart
+
 │       │   ├── task_event.dart
+
 │       │   └── task_state.dart
+
 │       └── filter_bloc/
+
 │           ├── filter_bloc.dart
+
 │           ├── filter_event.dart
+
 │           └── filter_state.dart
+
 ├── presentation/
+
 │   ├── screens/
+
 │   │   └── home_screen.dart
+
 │   ├── widgets/
+
 │   │   ├── task_tile.dart
+
 │   │   ├── task_form.dart
+
 │   │   └── filter_buttons.dart
+
 │   └── dialogs/
+
 │       └── task_dialog.dart
+
 
 ---
 
