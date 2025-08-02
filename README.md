@@ -156,7 +156,7 @@ Or build locally (see below).
 
 | Home | All | Add | Delete | Update | Active | Completed |
 |------|--------|-----------|-------|------|--------|-----------|
-| ![Home](assets/screenshots/home.png) | ![All](assets/screenshots/all.png) | ![Add](assets/screenshots/add.png) | ![Delete](assets/screenshots/delete.png) | ![Update](assets/screenshots/update.png) | ![Active](assets/screenshots/active.png) | ![Completed](assets/screenshots/completed.png) |
+| ![Home](assets/screenshots/home.png) | ![All](assets/screenshots/All.png) | ![Add](assets/screenshots/Add.png) | ![Delete](assets/screenshots/Delete.png) | ![Update](assets/screenshots/Update.png) | ![Active](assets/screenshots/Active.png) | ![Completed](assets/screenshots/Completed.png) |
 
 ---
 
