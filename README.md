@@ -176,7 +176,7 @@ Or build locally (see below).
 
 > Click the image below to watch the demo video showcasing all features (Add, Update, Delete, Filter & Sort Tasks).
 
-[![Watch Demo](assets/screenshots/demo_thumbnail.png)](https://github.com/iamdipesh18/to_do_application/raw/main/assets/videos/Demo.mp4)
+[![Watch Demo](assets/thumbnail.png)](https://github.com/iamdipesh18/to_do_application/raw/main/assets/Demo.mp4)
 
 ---
 
