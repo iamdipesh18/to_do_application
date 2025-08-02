@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:to_do_application/core/enums/task_filter.dart';
 
 abstract class FilterEvent extends Equatable {
   const FilterEvent();
@@ -14,10 +15,4 @@ class ChangeFilter extends FilterEvent {
 
   @override
   List<Object?> get props => [filter];
-}
-
-enum TaskFilter {
-  all,
-  completed,
-  pending,
 }

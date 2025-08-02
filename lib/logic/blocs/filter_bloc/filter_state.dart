@@ -1,15 +1,13 @@
 import 'package:equatable/equatable.dart';
-import 'filter_event.dart';
+import 'package:to_do_application/core/enums/task_filter.dart';
 
 class FilterState extends Equatable {
   final TaskFilter activeFilter;
 
-  const FilterState({this.activeFilter = TaskFilter.all});
+  const FilterState({required this.activeFilter});
 
   FilterState copyWith({TaskFilter? activeFilter}) {
-    return FilterState(
-      activeFilter: activeFilter ?? this.activeFilter,
-    );
+    return FilterState(activeFilter: activeFilter ?? this.activeFilter);
   }
 
   @override

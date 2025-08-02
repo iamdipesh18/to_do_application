@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do_application/core/enums/task_filter.dart';
+import 'package:to_do_application/core/enums/sort_order.dart';
 import 'package:to_do_application/domain/entities/task.dart';
+import 'package:to_do_application/logic/blocs/task_bloc/sort_bloc.dart';
+import 'package:to_do_application/logic/blocs/task_bloc/sort_event.dart';
+import 'package:to_do_application/logic/blocs/task_bloc/sort_state.dart';
+
 import '../../logic/blocs/task_bloc/task_bloc.dart';
 import '../../logic/blocs/task_bloc/task_event.dart';
 import '../../logic/blocs/task_bloc/task_state.dart';
 import '../../logic/blocs/filter_bloc/filter_bloc.dart';
 import '../../logic/blocs/filter_bloc/filter_event.dart';
 import '../../logic/blocs/filter_bloc/filter_state.dart';
+
+import '../../domain/usecases/sort_tasks.dart';
+
 import '../widgets/task_tile.dart';
 import '../widgets/filter_buttons.dart';
 import '../dialogs/task_dialog.dart';
@@ -19,6 +28,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final SortTasks _sortTasks = SortTasks();
+
   void _showAddTaskDialog() {
     showDialog(
       context: context,
@@ -64,6 +75,39 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
+          // Sort Buttons UI
+          BlocBuilder<SortBloc, SortState>(
+            builder: (context, sortState) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Sort by Due Date: '),
+                    ChoiceChip(
+                      label: const Text('Asc'),
+                      selected: sortState.order == SortOrder.ascending,
+                      onSelected: (_) {
+                        context
+                            .read<SortBloc>()
+                            .add(ChangeSortOrder(SortOrder.ascending));
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    ChoiceChip(
+                      label: const Text('Desc'),
+                      selected: sortState.order == SortOrder.descending,
+                      onSelected: (_) {
+                        context
+                            .read<SortBloc>()
+                            .add(ChangeSortOrder(SortOrder.descending));
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
           Expanded(
             child: BlocBuilder<TaskBloc, TaskState>(
               builder: (context, state) {
@@ -72,15 +116,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 } else if (state is TaskLoaded) {
                   return BlocBuilder<FilterBloc, FilterState>(
                     builder: (context, filterState) {
-                      final filteredTasks = _filterTasks(state.tasks, filterState.activeFilter);
-                      if (filteredTasks.isEmpty) {
-                        return const Center(child: Text('No tasks found.'));
-                      }
-                      return ListView.builder(
-                        itemCount: filteredTasks.length,
-                        itemBuilder: (context, index) {
-                          final task = filteredTasks[index];
-                          return TaskTile(task: task);
+                      return BlocBuilder<SortBloc, SortState>(
+                        builder: (context, sortState) {
+                          // Filter tasks by selected filter
+                          final filteredTasks = _filterTasks(
+                              state.tasks, filterState.activeFilter);
+                          // Sort filtered tasks by due date according to sort order
+                          final sortedTasks =
+                              _sortTasks(filteredTasks, sortState.order);
+
+                          if (sortedTasks.isEmpty) {
+                            return const Center(child: Text('No tasks found.'));
+                          }
+
+                          return ListView.builder(
+                            itemCount: sortedTasks.length,
+                            itemBuilder: (context, index) {
+                              final task = sortedTasks[index];
+                              return TaskTile(task: task);
+                            },
+                          );
                         },
                       );
                     },
