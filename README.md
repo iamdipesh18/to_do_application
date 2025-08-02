@@ -4,7 +4,7 @@ A simple yet powerful Todo Application built using **Flutter**, implementing **C
 
 
 <p align="center">
-  <img src="assets/logo.png" alt="To Do Logo" width="150" />
+  <img src="assets/icon.png" alt="To Do Logo" width="150" />
 </p>
 
 ---
