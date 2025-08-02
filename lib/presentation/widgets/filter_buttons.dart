@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_application/core/enums/task_filter.dart';
 
-// This widget shows a row of filter buttons for tasks: All, Active, Completed.
-// It highlights the currently selected filter and calls a callback when a filter is selected.
 class FilterButtons extends StatelessWidget {
-  final TaskFilter activeFilter; // The currently selected filter
-  final ValueChanged<TaskFilter> onFilterSelected; // Called when user picks a filter
+  final TaskFilter activeFilter;
+  final ValueChanged<TaskFilter> onFilterSelected;
 
   const FilterButtons({
     super.key,
@@ -15,28 +13,33 @@ class FilterButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center, // Center the buttons horizontally
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 12,
         children: TaskFilter.values.map((filter) {
-          final isSelected = filter == activeFilter; // Check if this filter is active
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6), // Space between buttons
-            child: ChoiceChip(
-              label: Text(filter.label), // Show filter name like "All", "Active", "Completed"
-              selected: isSelected, // Highlight if selected
-              onSelected: (_) => onFilterSelected(filter), // Notify parent when tapped
-              selectedColor: Theme.of(context).primaryColor.withOpacity(0.2), // Highlight color background
-              labelStyle: TextStyle(
-                color: isSelected ? Theme.of(context).primaryColor : null, // Highlight text color if selected
-                fontWeight: isSelected ? FontWeight.bold : null, // Bold text if selected
+          final isSelected = filter == activeFilter;
+          return ChoiceChip(
+            label: Text(
+              filter.label,
+              style: TextStyle(
+                color: isSelected
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.onSurfaceVariant,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // Button padding
             ),
+            selected: isSelected,
+            onSelected: (_) => onFilterSelected(filter),
+            selectedColor: theme.colorScheme.primaryContainer,
+            backgroundColor: theme.colorScheme.surfaceVariant,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            elevation: isSelected ? 4 : 0,
+            shadowColor: theme.colorScheme.primary.withOpacity(0.3),
           );
-        }).toList(), // Convert all filters to a list of widgets
+        }).toList(),
       ),
     );
   }

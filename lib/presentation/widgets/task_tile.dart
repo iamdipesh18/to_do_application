@@ -12,7 +12,7 @@ class TaskTile extends StatelessWidget {
 
   const TaskTile({super.key, required this.task});
 
-  // Returns the color associated with each priority level
+  // Get color based on task priority
   Color _priorityColor(Priority priority) {
     switch (priority) {
       case Priority.high:
@@ -26,103 +26,106 @@ class TaskTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // If task is completed, show text with line-through and grey color
+    final theme = Theme.of(context);
+
+    // Apply strikethrough style for completed tasks
     final textStyle = task.isCompleted
-        ? const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey)
-        : null;
+        ? const TextStyle(
+            decoration: TextDecoration.lineThrough,
+            color: Colors.grey,
+          )
+        : theme.textTheme.bodyLarge;
 
     return Dismissible(
-      // Unique key for dismissible widget, using task ID
       key: Key(task.id),
-
-      // Swipe direction allowed: right to left (end to start)
       direction: DismissDirection.endToStart,
-
-      // Background shown behind the item when swiping (red delete background with trash icon)
       background: Container(
         color: Colors.red.shade600,
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: const Icon(Icons.delete, color: Colors.white),
+        child: const Icon(Icons.delete_outline_rounded,
+            color: Colors.white, size: 30),
       ),
-
-      // Confirm dismissal by showing a dialog asking user to confirm deletion
       confirmDismiss: (direction) async {
+        // Show confirmation dialog before delete
         return await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Confirm Delete'),
             content: const Text('Are you sure you want to delete this task?'),
             actions: [
-              TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-              TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Delete')),
+              TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(false),
+                  child: const Text('Cancel')),
+              TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(true),
+                  child: const Text('Delete')),
             ],
           ),
         );
       },
-
-      // Called when the item is dismissed (after confirmation)
       onDismissed: (_) {
-        // Dispatch event to Bloc to delete the task by ID
         context.read<TaskBloc>().add(DeleteTaskEvent(task.id));
-        // Show a snackbar to notify the user task was deleted
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Task deleted')),
         );
       },
-
-      // The visible card containing the task info
       child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: ListTile(
-          // Long press on the tile opens the edit task dialog
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
           onLongPress: () {
-            showDialog(
+            // Show edit dialog on long press
+            showTaskBottomSheet(
               context: context,
-              builder: (_) => TaskDialog(
-                task: task, // pass current task for editing
-                onSave: (updatedTask) {
-                  // When user saves changes, dispatch update event to Bloc
-                  context.read<TaskBloc>().add(UpdateTaskEvent(updatedTask));
-                },
-              ),
+              task: task,
+              onSave: (updatedTask) =>
+                  context.read<TaskBloc>().add(UpdateTaskEvent(updatedTask)),
             );
           },
-
-          // Checkbox to toggle completion status of task
-          leading: Checkbox(
-            value: task.isCompleted,
-            onChanged: (_) {
-              // When toggled, dispatch toggle completion status event
-              context.read<TaskBloc>().add(ToggleTaskStatusEvent(task.id));
-            },
-          ),
-
-          // Title of the task with conditional style if completed
-          title: Text(task.title, style: textStyle),
-
-          // Subtitle shows description and due date, styled similarly
-          subtitle: Text(
-            '${task.description}\nDue: ${task.dueDate.toLocal().toString().split(' ')[0]}',
-            style: textStyle,
-          ),
-
-          isThreeLine: true, // to allow space for multiline subtitle
-
-          // Trailing widget shows priority label with background color indicating priority
-          trailing: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: _priorityColor(task.priority).withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              task.priority.label, // e.g., "High", "Medium", "Low"
-              style: TextStyle(
-                color: _priorityColor(task.priority),
-                fontWeight: FontWeight.bold,
+          child: Row(
+            children: [
+              // Left color bar based on priority
+              Container(
+                width: 6,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: _priorityColor(task.priority),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    bottomLeft: Radius.circular(16),
+                  ),
+                ),
               ),
-            ),
+              Expanded(
+                child: ListTile(
+                  // Checkbox to toggle task status
+                  leading: Checkbox(
+                    value: task.isCompleted,
+                    onChanged: (_) => context
+                        .read<TaskBloc>()
+                        .add(ToggleTaskStatusEvent(task.id)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    activeColor: _priorityColor(task.priority),
+                  ),
+                  // Task title
+                  title: Text(task.title, style: textStyle),
+                  // Task subtitle with description and due date
+                  subtitle: Text(
+                    '${task.description}\nDue: ${task.dueDate.toLocal().toString().split(' ')[0]}',
+                    style: textStyle?.copyWith(fontSize: 13),
+                  ),
+                  isThreeLine: true,
+                  // Removed the trailing icon for minimal design
+                ),
+              ),
+            ],
           ),
         ),
       ),

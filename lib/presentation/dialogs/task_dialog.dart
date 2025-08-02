@@ -2,185 +2,216 @@ import 'package:flutter/material.dart';
 import 'package:to_do_application/core/enums/priority.dart';
 import 'package:to_do_application/domain/entities/task.dart';
 
-// This widget shows a dialog to add a new task or edit an existing one.
-// If `task` is null, it means we are adding a new task.
-// If `task` is non-null, it means we are editing that task.
-class TaskDialog extends StatefulWidget {
-  final Task? task; // The task to edit, or null to create a new one.
-  final Function(Task) onSave; // Callback when user saves the task.
-
-  const TaskDialog({super.key, this.task, required this.onSave});
-
-  @override
-  State<TaskDialog> createState() => _TaskDialogState();
+void showTaskBottomSheet({
+  required BuildContext context,
+  Task? task,
+  required void Function(Task task) onSave,
+}) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) {
+      return _TaskBottomSheetContent(task: task, onSave: onSave);
+    },
+  );
 }
 
-class _TaskDialogState extends State<TaskDialog> {
-  final _formKey = GlobalKey<FormState>(); // Key to manage the form state.
+class _TaskBottomSheetContent extends StatefulWidget {
+  final Task? task;
+  final void Function(Task task) onSave;
 
-  // Fields to hold input values.
+  const _TaskBottomSheetContent({required this.task, required this.onSave});
+
+  @override
+  State<_TaskBottomSheetContent> createState() =>
+      _TaskBottomSheetContentState();
+}
+
+class _TaskBottomSheetContentState extends State<_TaskBottomSheetContent> {
+  final _formKey = GlobalKey<FormState>();
+
   late String _title;
   late String _description;
-  late Priority _priority;
   late DateTime _dueDate;
+  late Priority _priority;
 
-  // Initialize fields either with the task data (if editing) or default values.
   @override
   void initState() {
     super.initState();
     final task = widget.task;
     _title = task?.title ?? '';
     _description = task?.description ?? '';
+    _dueDate = task?.dueDate ?? DateTime.now();
     _priority = task?.priority ?? Priority.medium;
-    _dueDate = task?.dueDate ?? DateTime.now().add(const Duration(days: 1));
   }
 
-  // Show a date picker dialog to select due date.
   Future<void> _pickDueDate() async {
     final picked = await showDatePicker(
       context: context,
       initialDate: _dueDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
+      firstDate: DateTime.now().subtract(const Duration(days: 1)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (picked != null) {
       setState(() {
-        _dueDate = picked; // Update the selected date.
+        _dueDate = picked;
       });
     }
   }
 
-  // Called when user taps Save/Add button.
-  void _submit() {
-    // Validate all inputs in the form.
-    if (_formKey.currentState!.validate()) {
-      // Save all form fields to their variables.
+  void _handleSave() {
+    if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState!.save();
 
-      // Create a new Task object:
-      // If editing, copy the old task and update fields.
-      // If adding, create a new Task with a new unique ID.
-      final task = widget.task == null
-          ? Task(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              title: _title,
-              description: _description,
-              dueDate: _dueDate,
-              priority: _priority,
-              isCompleted: false,
-            )
-          : widget.task!.copyWith(
-              title: _title,
-              description: _description,
-              dueDate: _dueDate,
-              priority: _priority,
-            );
+      final updatedTask = Task(
+        id: widget.task?.id ?? UniqueKey().toString(),
+        title: _title,
+        description: _description,
+        dueDate: _dueDate,
+        priority: _priority,
+        isCompleted: widget.task?.isCompleted ?? false,
+      );
 
-      widget.onSave(task); // Call the callback with the new/updated task.
-      Navigator.of(context).pop(); // Close the dialog.
+      widget.onSave(updatedTask);
+      Navigator.of(context).pop();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      // Title changes depending on adding or editing.
-      title: Text(widget.task == null ? 'Add Task' : 'Edit Task'),
-      content: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Form(
-            key: _formKey, // Attach form key to validate/save inputs.
+    final isEditing = widget.task != null;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: bottomInset,
+        left: 20,
+        right: 20,
+        top: 24,
+      ),
+      child: Wrap(
+        children: [
+          Form(
+            key: _formKey,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Text field for task title.
+                // Title
+                Text(
+                  isEditing ? 'Edit Task' : 'New Task',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 16),
+
+                // Title Field
                 TextFormField(
                   initialValue: _title,
                   decoration: const InputDecoration(
                     labelText: 'Title',
-                    hintText: 'Enter task title',
                     border: OutlineInputBorder(),
                   ),
-                  // Title is required.
-                  validator: (value) => (value == null || value.trim().isEmpty)
+                  onSaved: (value) => _title = value!.trim(),
+                  validator: (value) => value == null || value.trim().isEmpty
                       ? 'Title required'
                       : null,
-                  onSaved: (value) => _title = value!.trim(),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
-                // Text field for task description.
+                // Description Field
                 TextFormField(
                   initialValue: _description,
+                  maxLines: 3,
                   decoration: const InputDecoration(
                     labelText: 'Description',
-                    hintText: 'Enter task details',
                     border: OutlineInputBorder(),
                   ),
-                  maxLines: 3,
-                  onSaved: (value) => _description = value ?? '',
+                  onSaved: (value) => _description = value!.trim(),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
-                // Dropdown to select priority.
+                // Due Date Picker
                 Row(
                   children: [
-                    const Text('Priority:',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
-                    const SizedBox(width: 16),
-                    DropdownButton<Priority>(
-                      value: _priority,
-                      items: Priority.values
-                          .map((p) => DropdownMenuItem(
-                                value: p,
-                                child: Text(p.label),
-                              ))
-                          .toList(),
-                      onChanged: (value) => setState(() => _priority = value!),
-                      underline: Container(height: 1, color: Colors.grey),
+                    const Icon(Icons.calendar_today_rounded, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Due: ${_dueDate.toLocal().toString().split(' ')[0]}',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _pickDueDate,
+                      child: const Text('Pick Date'),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
-                // Due date display and picker button.
-                Row(
-                  children: [
-                    const Text('Due Date:',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
-                    const SizedBox(width: 16),
-                    Text(
-                      '${_dueDate.toLocal()}'.split(' ')[0], // Show date only
-                      style: const TextStyle(fontSize: 16),
+                // Priority Dropdown
+                InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Priority',
+                    border: OutlineInputBorder(),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<Priority>(
+                      value: _priority,
+                      isExpanded: true,
+                      items: Priority.values.map((p) {
+                        return DropdownMenuItem(
+                          value: p,
+                          child: Text(p.label),
+                        );
+                      }).toList(),
+                      onChanged: (p) {
+                        if (p != null) {
+                          setState(() {
+                            _priority = p;
+                          });
+                        }
+                      },
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.calendar_today),
-                      onPressed: _pickDueDate, // Open date picker
-                      tooltip: 'Select due date',
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Save Button
+                Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment.center, // Aligns to the right
+                  children: [
+                    ElevatedButton(
+                      onPressed: _handleSave,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 14, horizontal: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        widget.task == null ? 'Add Task' : 'Update Task',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-        ),
+        ],
       ),
-      // Buttons at bottom: Cancel and Add/Save
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(), // Close dialog
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _submit, // Validate and save task
-          child: Text(widget.task == null ? 'Add Task' : 'Save Changes'),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          ),
-        ),
-      ],
     );
   }
 }

@@ -18,13 +18,9 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Create the local data source which handles data storage (e.g., Hive)
     final localDataSource = LocalTaskDataSource();
-
-    // Create the repository that abstracts data source operations
     final taskRepository = TaskRepositoryImpl(dataSource: localDataSource);
 
-    // Initialize the use cases that encapsulate business logic, passing repository
     final getTasks = GetTasks(taskRepository);
     final addTask = AddTask(taskRepository);
     final updateTask = UpdateTask(taskRepository);
@@ -33,7 +29,6 @@ class App extends StatelessWidget {
 
     return MultiBlocProvider(
       providers: [
-        // Provide TaskBloc with all required use cases injected
         BlocProvider<TaskBloc>(
           create: (_) => TaskBloc(
             getTasks: getTasks,
@@ -41,11 +36,8 @@ class App extends StatelessWidget {
             updateTask: updateTask,
             deleteTask: deleteTask,
             toggleTaskStatus: toggleTaskStatus,
-          )
-          // Immediately load tasks on bloc creation
-          ..add(LoadTasks()),
+          )..add(LoadTasks()),
         ),
-        // Provide FilterBloc to manage filtering state
         BlocProvider<FilterBloc>(
           create: (_) => FilterBloc(),
         ),
@@ -54,17 +46,42 @@ class App extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Todo App',
         theme: ThemeData(
-          primaryColor: AppColors.primary, // primary app color
-          scaffoldBackgroundColor: AppColors.background, // background color
-          appBarTheme: const AppBarTheme(
-            backgroundColor: AppColors.primary, // app bar background color
-            foregroundColor: Colors.white, // app bar text/icon color
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: AppColors.primary,
+            brightness: Brightness.light,
           ),
-          floatingActionButtonTheme: const FloatingActionButtonThemeData(
-            backgroundColor: AppColors.secondary, // FAB color
+          scaffoldBackgroundColor: AppColors.background,
+          appBarTheme: AppBarTheme(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            centerTitle: true,
+            titleTextStyle: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+            backgroundColor: AppColors.secondary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          cardTheme: CardThemeData(
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          ),
+          checkboxTheme: CheckboxThemeData(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
           ),
         ),
-        // Home screen of the app
         home: const HomeScreen(),
       ),
     );
