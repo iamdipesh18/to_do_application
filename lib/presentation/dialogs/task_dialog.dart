@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:to_do_application/core/enums/priority.dart';
 import 'package:to_do_application/domain/entities/task.dart';
 
+/// Shows a modal bottom sheet with a sleek task form.
+/// Supports creating a new task or editing an existing one.
+/// The [onSave] callback returns the created/updated Task.
 void showTaskBottomSheet({
   required BuildContext context,
   Task? task,
@@ -9,13 +12,11 @@ void showTaskBottomSheet({
 }) {
   showModalBottomSheet(
     context: context,
-    isScrollControlled: true,
+    isScrollControlled: true, // To allow form to go above keyboard
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    builder: (context) {
-      return _TaskBottomSheetContent(task: task, onSave: onSave);
-    },
+    builder: (context) => _TaskBottomSheetContent(task: task, onSave: onSave),
   );
 }
 
@@ -23,7 +24,10 @@ class _TaskBottomSheetContent extends StatefulWidget {
   final Task? task;
   final void Function(Task task) onSave;
 
-  const _TaskBottomSheetContent({required this.task, required this.onSave});
+  const _TaskBottomSheetContent({
+    required this.task,
+    required this.onSave,
+  });
 
   @override
   State<_TaskBottomSheetContent> createState() =>
@@ -44,7 +48,7 @@ class _TaskBottomSheetContentState extends State<_TaskBottomSheetContent> {
     final task = widget.task;
     _title = task?.title ?? '';
     _description = task?.description ?? '';
-    _dueDate = task?.dueDate ?? DateTime.now();
+    _dueDate = task?.dueDate ?? DateTime.now().add(const Duration(days: 1));
     _priority = task?.priority ?? Priority.medium;
   }
 
@@ -52,7 +56,7 @@ class _TaskBottomSheetContentState extends State<_TaskBottomSheetContent> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _dueDate,
-      firstDate: DateTime.now().subtract(const Duration(days: 1)),
+      firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (picked != null) {
@@ -99,49 +103,53 @@ class _TaskBottomSheetContentState extends State<_TaskBottomSheetContent> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title
+                // Header Title
                 Text(
                   isEditing ? 'Edit Task' : 'New Task',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
-                // Title Field
+                // Title input field
                 TextFormField(
                   initialValue: _title,
                   decoration: const InputDecoration(
                     labelText: 'Title',
                     border: OutlineInputBorder(),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   ),
-                  onSaved: (value) => _title = value!.trim(),
                   validator: (value) => value == null || value.trim().isEmpty
                       ? 'Title required'
                       : null,
+                  onSaved: (value) => _title = value!.trim(),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 18),
 
-                // Description Field
+                // Description input field
                 TextFormField(
                   initialValue: _description,
                   maxLines: 3,
                   decoration: const InputDecoration(
                     labelText: 'Description',
                     border: OutlineInputBorder(),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   ),
-                  onSaved: (value) => _description = value!.trim(),
+                  onSaved: (value) => _description = value?.trim() ?? '',
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 18),
 
-                // Due Date Picker
+                // Due date selector row
                 Row(
                   children: [
                     const Icon(Icons.calendar_today_rounded, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Due: ${_dueDate.toLocal().toString().split(' ')[0]}',
+                        'Due Date: ${_dueDate.toLocal().toString().split(' ')[0]}',
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ),
@@ -151,62 +159,63 @@ class _TaskBottomSheetContentState extends State<_TaskBottomSheetContent> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 18),
 
-                // Priority Dropdown
+                // Priority dropdown inside input decorator for border
                 InputDecorator(
                   decoration: const InputDecoration(
                     labelText: 'Priority',
                     border: OutlineInputBorder(),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<Priority>(
                       value: _priority,
                       isExpanded: true,
-                      items: Priority.values.map((p) {
+                      items: Priority.values.map((priority) {
                         return DropdownMenuItem(
-                          value: p,
-                          child: Text(p.label),
+                          value: priority,
+                          child: Text(priority.label),
                         );
                       }).toList(),
-                      onChanged: (p) {
-                        if (p != null) {
+                      onChanged: (priority) {
+                        if (priority != null) {
                           setState(() {
-                            _priority = p;
+                            _priority = priority;
                           });
                         }
                       },
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
 
-                // Save Button
-                Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center, // Aligns to the right
-                  children: [
-                    ElevatedButton(
-                      onPressed: _handleSave,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14, horizontal: 20),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        widget.task == null ? 'Add Task' : 'Update Task',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                const SizedBox(height: 30),
+
+                // Save button aligned to the right
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _handleSave,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                  ],
+                    child: Text(
+                      isEditing ? 'Update Task' : 'Add Task',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ),
+
+                const SizedBox(height: 24),
               ],
             ),
           ),
