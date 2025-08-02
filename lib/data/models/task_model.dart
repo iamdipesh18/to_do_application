@@ -1,3 +1,5 @@
+// ignore_for_file: overridden_fields
+
 import 'package:hive/hive.dart';
 import 'package:to_do_application/core/enums/priority.dart';
 import 'package:to_do_application/domain/entities/task.dart';

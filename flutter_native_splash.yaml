@@ -1,0 +1,6 @@
+flutter_native_splash:
+  color: "#008C96"                       # Splash background color (teal)
+  image: "assets/icon.png"
+  android: true
+  ios: true
+  fullscreen: true
