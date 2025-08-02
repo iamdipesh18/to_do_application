@@ -37,86 +37,86 @@
 ✅ data/repositories/task_repository_impl.dart → actual implementation
 -------------------------------------------------------------------------
 🔹 STEP 7: Local Data Source (Hive CRUD Operations)
-Create local_task_data_source.dart
+✅ Create local_task_data_source.dart
 
-Write methods: add, delete, update, getAll
+✅ Write methods: add, delete, update, getAll
 -------------------------------------------------------------------------
 🔹 STEP 8: Use Cases (Domain Logic)
 Create one Dart file per task inside domain/usecases/:
 
-add_task.dart
+✅ add_task.dart
+ 
+✅ get_tasks.dart
 
-get_tasks.dart
+✅ delete_task.dart
 
-delete_task.dart
+✅ update_task.dart
 
-update_task.dart
-
-toggle_task_status.dart
+✅ toggle_task_status.dart
 -------------------------------------------------------------------------
 🔹 STEP 9: BLoC for Task Management
-Create task_bloc/ folder
+✅ Create task_bloc/ folder
 
-task_bloc.dart: main logic
+✅ task_bloc.dart: main logic
 
-task_event.dart: defines all possible user actions
+✅ task_event.dart: defines all possible user actions
 
-task_state.dart: represents UI state (task list, loading, etc.)
+✅ task_state.dart: represents UI state (task list, loading, etc.)
 
 🔹 STEP 10: BLoC for Filtering Tasks
-Create filter_bloc/
+✅ Create filter_bloc/
 
-Handles All / Active / Completed filters
+✅ Handles All / Active / Completed filters
 
-Works in parallel with task_bloc
+✅ Works in parallel with task_bloc
 
 🔹 STEP 11: Build UI
-Create presentation/screens/home_screen.dart
+✅ Create presentation/screens/home_screen.dart
 
-Show list of tasks
+✅ Show list of tasks
 
-Show add/edit buttons
+✅ Show add/edit buttons
 
-Hook BLoC into UI using BlocBuilder and BlocListener
+✅ Hook BLoC into UI using BlocBuilder and BlocListener
 
 🔹 STEP 12: Reusable UI Components
-🔸 task_tile.dart: each task row with checkbox, title, priority
+✅ task_tile.dart: each task row with checkbox, title, priority
 
-🔸 task_form.dart: used for adding/editing task (title, description, due date)
+✅ task_form.dart: used for adding/editing task (title, description, due date)
 
-🔸 filter_buttons.dart: toggle between All, Active, Completed
+✅ filter_buttons.dart: toggle between All, Active, Completed
 
 🔹 STEP 13: Dialog UI for Add/Edit Task
-Create task_dialog.dart that:
+✅ Create task_dialog.dart that:
 
-Opens when FAB is tapped
+✅ Opens when FAB is tapped
 
-Can be used to edit an existing task or add a new one
+✅ Can be used to edit an existing task or add a new one
 
 🔹 STEP 14: Sorting by Due Date
-Implement optional sorting feature (ascending or descending due date)
+✅ Implement optional sorting feature (ascending or descending due date)
 
-Use basic List.sort() on task list
+✅ Use basic List.sort() on task list
 
 🔹 STEP 15: (Optional) Dark/Light Theme
-Add toggle using ThemeData.light() and ThemeData.dark()
+✅ Add toggle using ThemeData.light() and ThemeData.dark()
 
 🔹 STEP 16: README + GitHub
-Create a README.md with:
+✅ Create a README.md with:
 
-Project overview
+✅ Project overview
 
-How to run the app
+✅ How to run the app
 
-Architecture summary
+✅ Architecture summary
 
-Screenshots (optional)
+✅ Screenshots (optional)
 
-Push to GitHub (public repo)
+✅ Push to GitHub (public repo)
 
 🔹 STEP 17: Final Polish
-Test functionality
+✅ Test functionality
 
-Ensure UI is responsive and clean
+✅ Ensure UI is responsive and clean
 
 Optional: Add animations or transitions
