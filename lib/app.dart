@@ -18,10 +18,13 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Setup repository and use cases
+    // Create the local data source which handles data storage (e.g., Hive)
     final localDataSource = LocalTaskDataSource();
+
+    // Create the repository that abstracts data source operations
     final taskRepository = TaskRepositoryImpl(dataSource: localDataSource);
 
+    // Initialize the use cases that encapsulate business logic, passing repository
     final getTasks = GetTasks(taskRepository);
     final addTask = AddTask(taskRepository);
     final updateTask = UpdateTask(taskRepository);
@@ -30,6 +33,7 @@ class App extends StatelessWidget {
 
     return MultiBlocProvider(
       providers: [
+        // Provide TaskBloc with all required use cases injected
         BlocProvider<TaskBloc>(
           create: (_) => TaskBloc(
             getTasks: getTasks,
@@ -37,8 +41,11 @@ class App extends StatelessWidget {
             updateTask: updateTask,
             deleteTask: deleteTask,
             toggleTaskStatus: toggleTaskStatus,
-          )..add(LoadTasks()),
+          )
+          // Immediately load tasks on bloc creation
+          ..add(LoadTasks()),
         ),
+        // Provide FilterBloc to manage filtering state
         BlocProvider<FilterBloc>(
           create: (_) => FilterBloc(),
         ),
@@ -47,16 +54,17 @@ class App extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Todo App',
         theme: ThemeData(
-          primaryColor: AppColors.primary,
-          scaffoldBackgroundColor: AppColors.background,
+          primaryColor: AppColors.primary, // primary app color
+          scaffoldBackgroundColor: AppColors.background, // background color
           appBarTheme: const AppBarTheme(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+            backgroundColor: AppColors.primary, // app bar background color
+            foregroundColor: Colors.white, // app bar text/icon color
           ),
           floatingActionButtonTheme: const FloatingActionButtonThemeData(
-            backgroundColor: AppColors.secondary,
+            backgroundColor: AppColors.secondary, // FAB color
           ),
         ),
+        // Home screen of the app
         home: const HomeScreen(),
       ),
     );

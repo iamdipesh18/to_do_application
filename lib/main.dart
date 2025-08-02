@@ -17,15 +17,20 @@ import 'package:to_do_application/presentation/screens/home_screen.dart';
 import 'core/enums/priority.dart';
 
 void main() async {
+  // Ensures Flutter binding initialized before using async native code
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Hive for Flutter to store local data
   await Hive.initFlutter();
 
-  Hive.registerAdapter(TaskModelAdapter());
-  Hive.registerAdapter(PriorityAdapter());
+  // Register Hive adapters for custom types stored in Hive
+  Hive.registerAdapter(TaskModelAdapter()); // For TaskModel objects
+  Hive.registerAdapter(PriorityAdapter()); // For Priority enum
 
+  // Open a Hive box named 'tasks' for storing TaskModel objects
   await Hive.openBox<TaskModel>('tasks');
 
+  // Run the main app widget
   runApp(const App());
 }
 
@@ -34,11 +39,13 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize Data Source and Repository
+    // Initialize data source that interacts with Hive
     final localDataSource = LocalTaskDataSource();
+
+    // Repository abstracts data source and provides interface to use cases
     final taskRepository = TaskRepositoryImpl(dataSource: localDataSource);
 
-    // Initialize Use Cases
+    // Instantiate all use cases with the repository
     final getTasks = GetTasks(taskRepository);
     final addTask = AddTask(taskRepository);
     final updateTask = UpdateTask(taskRepository);
@@ -47,6 +54,7 @@ class App extends StatelessWidget {
 
     return MultiBlocProvider(
       providers: [
+        // Provide TaskBloc with all required use cases injected
         BlocProvider(
           create: (_) => TaskBloc(
             getTasks: getTasks,
@@ -54,17 +62,24 @@ class App extends StatelessWidget {
             updateTask: updateTask,
             deleteTask: deleteTask,
             toggleTaskStatus: toggleTaskStatus,
-          )..add(LoadTasks()), // Optionally Load tasks at startup
+          )
+            // Dispatch LoadTasks event on creation to fetch tasks immediately
+            ..add(LoadTasks()),
         ),
+        // Provide FilterBloc to manage task filtering state
         BlocProvider(create: (_) => FilterBloc()),
+        // Provide SortBloc to manage sorting order state
         BlocProvider<SortBloc>(
           create: (_) => SortBloc(),
         ),
       ],
       child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Todo App',
-        theme: ThemeData(primarySwatch: Colors.blue),
+        debugShowCheckedModeBanner: false, // Remove debug banner
+        title: 'Todo App', // App title
+        theme: ThemeData(
+          primarySwatch: Colors.blue, // Default Material blue theme
+        ),
+        // Main screen widget of the app
         home: const HomeScreen(),
       ),
     );

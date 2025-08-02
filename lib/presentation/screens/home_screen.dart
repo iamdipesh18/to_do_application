@@ -20,6 +20,7 @@ import '../widgets/task_tile.dart';
 import '../widgets/filter_buttons.dart';
 import '../dialogs/task_dialog.dart';
 
+// The main screen that shows the list of tasks and controls.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -28,13 +29,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final SortTasks _sortTasks = SortTasks();
+  final SortTasks _sortTasks = SortTasks(); // Use case to sort tasks
 
+  // Shows the dialog to add a new task.
   void _showAddTaskDialog() {
     showDialog(
       context: context,
       builder: (context) => TaskDialog(
         onSave: (task) {
+          // When the user saves, add the task via TaskBloc.
           context.read<TaskBloc>().add(AddTaskEvent(task));
         },
       ),
@@ -44,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // When screen loads, fetch all tasks.
     context.read<TaskBloc>().add(LoadTasks());
   }
 
@@ -55,27 +59,30 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
+            // Reload tasks when refresh is tapped.
             onPressed: () => context.read<TaskBloc>().add(LoadTasks()),
           )
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddTaskDialog,
+        onPressed: _showAddTaskDialog, // Open dialog to add a task.
         child: const Icon(Icons.add),
       ),
       body: Column(
         children: [
+          // Filter buttons (All, Active, Completed)
           BlocBuilder<FilterBloc, FilterState>(
             builder: (context, filterState) {
               return FilterButtons(
                 activeFilter: filterState.activeFilter,
                 onFilterSelected: (filter) {
+                  // Change filter state on button tap.
                   context.read<FilterBloc>().add(ChangeFilter(filter));
                 },
               );
             },
           ),
-          // Sort Buttons UI
+          // Sort buttons to select ascending or descending due date order.
           BlocBuilder<SortBloc, SortState>(
             builder: (context, sortState) {
               return Padding(
@@ -88,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       label: const Text('Asc'),
                       selected: sortState.order == SortOrder.ascending,
                       onSelected: (_) {
+                        // Change sort order to ascending.
                         context
                             .read<SortBloc>()
                             .add(ChangeSortOrder(SortOrder.ascending));
@@ -98,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       label: const Text('Desc'),
                       selected: sortState.order == SortOrder.descending,
                       onSelected: (_) {
+                        // Change sort order to descending.
                         context
                             .read<SortBloc>()
                             .add(ChangeSortOrder(SortOrder.descending));
@@ -108,32 +117,37 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
+          // Expanded list of tasks
           Expanded(
             child: BlocBuilder<TaskBloc, TaskState>(
               builder: (context, state) {
                 if (state is TaskLoading) {
+                  // Show loading indicator while tasks load.
                   return const Center(child: CircularProgressIndicator());
                 } else if (state is TaskLoaded) {
+                  // When tasks are loaded, also listen to filter and sort states.
                   return BlocBuilder<FilterBloc, FilterState>(
                     builder: (context, filterState) {
                       return BlocBuilder<SortBloc, SortState>(
                         builder: (context, sortState) {
-                          // Filter tasks by selected filter
-                          final filteredTasks = _filterTasks(
-                              state.tasks, filterState.activeFilter);
-                          // Sort filtered tasks by due date according to sort order
+                          // Filter tasks based on active filter.
+                          final filteredTasks =
+                              _filterTasks(state.tasks, filterState.activeFilter);
+                          // Sort filtered tasks by due date.
                           final sortedTasks =
                               _sortTasks(filteredTasks, sortState.order);
 
                           if (sortedTasks.isEmpty) {
+                            // Show message if no tasks available.
                             return const Center(child: Text('No tasks found.'));
                           }
 
+                          // Show tasks in a scrolling list.
                           return ListView.builder(
                             itemCount: sortedTasks.length,
                             itemBuilder: (context, index) {
                               final task = sortedTasks[index];
-                              return TaskTile(task: task);
+                              return TaskTile(task: task); // Custom widget for each task.
                             },
                           );
                         },
@@ -141,8 +155,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   );
                 } else if (state is TaskError) {
+                  // Show error message if loading tasks failed.
                   return Center(child: Text('Error: ${state.message}'));
                 }
+                // Show empty space if no state matches.
                 return const SizedBox.shrink();
               },
             ),
@@ -152,6 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Helper method to filter tasks by status.
   List<Task> _filterTasks(List<Task> tasks, TaskFilter filter) {
     switch (filter) {
       case TaskFilter.completed:
@@ -159,7 +176,8 @@ class _HomeScreenState extends State<HomeScreen> {
       case TaskFilter.pending:
         return tasks.where((t) => !t.isCompleted).toList();
       case TaskFilter.all:
-      return tasks;
+      default:
+        return tasks;
     }
   }
 }
