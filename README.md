@@ -156,7 +156,7 @@ Or build locally (see below).
 
 | Home | All Tasks |
 |------|-----------|
-| ![Home](assets/screenshots/home.png) | ![All Tasks](assets/screenshots/All.png) |
+| ![Home](assets/screenshots/Home.png) | ![All Tasks](assets/screenshots/All.png) |
 
 | Add Task | Delete Task |
 |----------|-------------|
