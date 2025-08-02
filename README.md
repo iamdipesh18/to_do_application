@@ -174,9 +174,9 @@ Or build locally (see below).
 ---
 ## 📺 Demo Video
 
-<video src="assets/videos/Demo.mp4" controls width="600"></video>
 
 > Watch the demo showcasing all features: Add, Update, Delete, Filter & Sort Tasks.
+<video src="assets/videos/Demo.mp4" controls width="600"></video>
 ---
 
 ## 🛠️ Installation & Setup
