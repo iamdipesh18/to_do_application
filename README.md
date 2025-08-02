@@ -4,7 +4,7 @@ A simple yet powerful Todo Application built using **Flutter**, implementing **C
 
 
 <p align="center">
-  <img src="assets/logo/ms_logo.png" alt="To DO Logo" width="150" />
+  <img src="assets/logo/logo.png" alt="To DO Logo" width="150" />
 </p>
 
 ---
@@ -154,9 +154,22 @@ Or build locally (see below).
 
 ## 📷 Screenshots
 
-| Home | All | Add | Delete | Update | Active | Completed |
-|------|--------|-----------|-------|------|--------|-----------|
-| ![Home](assets/screenshots/home.png) | ![All](assets/screenshots/All.png) | ![Add](assets/screenshots/Add.png) | ![Delete](assets/screenshots/Delete.png) | ![Update](assets/screenshots/Update.png) | ![Active](assets/screenshots/Active.png) | ![Completed](assets/screenshots/Completed.png) |
+| Home | All Tasks |
+|------|-----------|
+| ![Home](assets/screenshots/home.png) | ![All Tasks](assets/screenshots/All.png) |
+
+| Add Task | Delete Task |
+|----------|-------------|
+| ![Add](assets/screenshots/Add.png) | ![Delete](assets/screenshots/Delete.png) |
+
+| Update Task | Active Tasks |
+|-------------|--------------|
+| ![Update](assets/screenshots/Update.png) | ![Active](assets/screenshots/Active.png) |
+
+| Completed Tasks |
+|-----------------|
+| ![Completed](assets/screenshots/Completed.png) |
+
 
 ---
 
